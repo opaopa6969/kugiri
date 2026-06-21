@@ -368,4 +368,4 @@ mvn -q -f building/pom.xml exec:java \
 
 **みどり先生**：そう、第一部の道具は、第二部でもずっと相棒だ。あわてない、あわてない。
 
-[← 第1章](01-kyori-no-wana.md) ・ [第3章 →（準備中）](README.md)
+[← 第1章](01-kyori-no-wana.md) ・ [第3章 →](03-clustering.md)
