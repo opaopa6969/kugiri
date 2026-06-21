@@ -5,6 +5,8 @@ import java.nio.charset.*;
 import java.util.*;
 import java.util.regex.*;
 
+import org.unlaxer.jaddress.normalizer.NFKC_CF;
+
 /**
  * 日本郵便 KEN_ALL.CSV(ヘッダ無し15列, 実ファイルはCP932)から
  * (zip7, 都道府県, 市区町村[郡/政令区を連結], 町域) を取り出す。
@@ -19,7 +21,8 @@ public final class KenAll {
 
     static String cleanTown(String t) {
         if (NOISE.contains(t)) return "";
-        return PAREN.matcher(t).replaceAll("").strip();
+        String cleaned = PAREN.matcher(t).replaceAll("").strip();
+        return NFKC_CF.normalize(cleaned);
     }
 
     public static List<Row> load(InputStream in, Charset cs) throws IOException {

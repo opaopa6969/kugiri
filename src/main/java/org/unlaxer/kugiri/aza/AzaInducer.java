@@ -2,6 +2,8 @@ package org.unlaxer.kugiri.aza;
 
 import java.util.*;
 
+import org.unlaxer.jaddress.normalizer.NFKC_CF;
+
 /**
  * 教師ゼロで「字(小字)」を推定する中核。残差スパン群から、頻出 × 高分岐エントロピーの
  * 部分文字列を字彙として誘導し、PMI で合成語(癒着)を剪定、ユニグラムLM で最尤分割する。
@@ -105,9 +107,10 @@ public final class AzaInducer {
     }
 
     static String stripMark(String r) {
-        if (r.startsWith("大字")) return r.substring(2);
-        if (r.startsWith("字")) return r.substring(1);
-        return r;
+        String s = NFKC_CF.normalize(r);
+        if (s.startsWith("大字")) return s.substring(2);
+        if (s.startsWith("字")) return s.substring(1);
+        return s;
     }
 
     private static double entropy(Map<String, Integer> counter) {

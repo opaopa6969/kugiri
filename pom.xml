@@ -21,8 +21,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <!-- 本体は依存ゼロ。JUnit はテストを書く時に追加(オフライン初回は要キャッシュ)。 -->
     <dependencies>
+        <!-- 日本語住所テキスト処理: 文字種分類(BuiltinCharacterKind)・正規化(NFKC_CF/VariantNormalizer) -->
+        <dependency>
+            <groupId>org.unlaxer</groupId>
+            <artifactId>japanese-parser-common</artifactId>
+            <version>0.1.1</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -2,36 +2,47 @@ package org.unlaxer.kugiri.feature;
 
 import java.util.*;
 
+import org.unlaxer.jaddress.model.character.BuiltinCharacterKind;
+import org.unlaxer.jaddress.model.character.CharacterKindRegistry;
+
 /**
- * codepoint 単位の素性抽出。区切りキーワード(都道府県郡市区町村丁目番地号字...)と文字種が
- * 強い手掛かりなので、窓 ±2 でそれらを与える。各素性は indicator(=存在=アクティブ)。
+ * codepoint 単位の素性抽出。BuiltinCharacterKind(住所特化文字種) + 窓 ±2 を与える。
  */
 public final class Features {
     private Features() {}
 
-    private static final Set<Integer> SUFFIX_KW = codepointSet("都道府県郡市区町村丁目番地号字条線通甲乙丙丁戊割の之ノ");
-    private static final Set<Integer> BLDG_KW = codepointSet("棟館階号室Ｆ階建ビルマンションタワーハイツ");
+    private static final CharacterKindRegistry REGISTRY = CharacterKindRegistry.getInstance();
 
-    private static Set<Integer> codepointSet(String s) {
-        Set<Integer> set = new HashSet<>();
-        s.codePoints().forEach(set::add);
-        return set;
-    }
+    /** アドレス境界として重要な BuiltinCharacterKind。特別素性を生成する。 */
+    private static final Set<BuiltinCharacterKind> BOUNDARY_KINDS = EnumSet.of(
+        BuiltinCharacterKind.suffix丁目,
+        BuiltinCharacterKind.suffix地番,
+        BuiltinCharacterKind.suffix号,
+        BuiltinCharacterKind.suffix号室,
+        BuiltinCharacterKind.suffix棟,
+        BuiltinCharacterKind.suffix階,
+        BuiltinCharacterKind.japaneseAddressNumber,
+        BuiltinCharacterKind.十干,
+        BuiltinCharacterKind.十二支,
+        BuiltinCharacterKind.delimitorJapanese,
+        BuiltinCharacterKind.delimitorHyphen
+    );
 
     public static String charType(String cp) {
         int c = cp.codePointAt(0);
-        if (Character.isWhitespace(c)) return "space";
-        if ("0123456789".indexOf(c) >= 0) return "digit_h";
-        if ("０１２３４５６７８９".indexOf(c) >= 0) return "digit_f";
-        if ("-ー−－‐〒".indexOf(c) >= 0) return "sym";
+        Set<org.unlaxer.jaddress.model.character.CharacterKind> kinds = REGISTRY.kindsOf(c);
+        if (kinds.contains(BuiltinCharacterKind.delimitorSpace))   return "space";
+        if (kinds.contains(BuiltinCharacterKind.arabicNumber))     return "digit";
+        if (kinds.contains(BuiltinCharacterKind.japaneseAddressNumber)) return "jnum";
+        if (kinds.contains(BuiltinCharacterKind.delimitorHyphen))  return "hyphen";
+        if (kinds.contains(BuiltinCharacterKind.hiragana))         return "hira";
+        if (kinds.contains(BuiltinCharacterKind.katakana))         return "kata";
+        if (kinds.contains(BuiltinCharacterKind.alphabet))         return "latin";
+        // normal の内訳: CJK は kanji、それ以外は other
         Character.UnicodeBlock b = Character.UnicodeBlock.of(c);
         if (b == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
                 || b == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
                 || (c >= 0x20000 && c <= 0x2FFFF)) return "kanji";
-        if (b == Character.UnicodeBlock.HIRAGANA) return "hira";
-        if (b == Character.UnicodeBlock.KATAKANA) return "kata";
-        if (b == Character.UnicodeBlock.BASIC_LATIN
-                || b == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS) return "latin";
         return "other";
     }
 
@@ -43,8 +54,11 @@ public final class Features {
         int cp = ch.codePointAt(0);
         f.add("c[" + p + "]=" + ch);
         f.add("t[" + p + "]=" + charType(ch));
-        if (SUFFIX_KW.contains(cp)) f.add("kw[" + p + "]");
-        if (BLDG_KW.contains(cp)) f.add("bk[" + p + "]");
+        // 住所境界に強い BuiltinCharacterKind をそれぞれ個別素性として追加
+        Set<org.unlaxer.jaddress.model.character.CharacterKind> kinds = REGISTRY.kindsOf(cp);
+        for (BuiltinCharacterKind bk : BOUNDARY_KINDS) {
+            if (kinds.contains(bk)) f.add("bk[" + p + "]=" + bk.name());
+        }
     }
 
     /** 位置 i のアクティブ素性キー列。 */
