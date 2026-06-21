@@ -44,6 +44,19 @@ java -Dstdout.encoding=UTF-8 -cp target/classes org.unlaxer.kugiri.demo.AzaDemo
 
 > 出力が文字化けする場合は `-Dstdout.encoding=UTF-8` を付ける。
 
+> 注: 0.1.0 以降は `japanese-parser-common`(GitHub Packages, private)に依存するため、
+> 「javac 直叩き」だけでは jpc を解決できない。まず jpc を `mvn install` で local .m2 に入れるか、
+> `~/.m2/settings.xml` に unlaxer-bom registry の read:packages 認証を設定すること。
+> 本体の*コード*は引き続き純 JDK + jpc のみ（重い ML 依存は持ち込まない）。
+
+### CI（GitHub Actions）
+- `.github/workflows/ci.yml`: JDK21 で `caulis/japanese-parser-common` を checkout→`mvn install`
+  してから kugiri を `mvn test` し、3デモを smoke 実行する。
+- **要 secret**: `PACKAGES_READ_TOKEN`（read:packages＋caulis repo の contents:read を持つ PAT）。
+  unlaxer-bom registry(private)と jpc ソース取得に必要。未設定だと依存解決で失敗する。
+- jpc 側(caulis/japanese-parser-common)は既に `ci.yml`（compile+test）と `publish.yml`
+  （release で GitHub Packages へ deploy、要 `PACKAGES_PUBLISH_TOKEN`）を持つ。
+
 ---
 
 ## 3. リポジトリ地図

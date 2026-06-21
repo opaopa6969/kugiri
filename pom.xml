@@ -23,6 +23,18 @@
         <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
     </properties>
 
+    <!-- japanese-parser-common / unlaxer-common は GitHub Packages(unlaxer-bom registry)。
+         解決には read:packages 認証が要る(~/.m2/settings.xml の server id=github-unlaxer-bom)。
+         CI では secret PACKAGES_READ_TOKEN を使う。本体コードは引き続き純 JDK + jpc のみ。 -->
+    <repositories>
+        <repository>
+            <id>github-unlaxer-bom</id>
+            <url>https://maven.pkg.github.com/opaopa6969/unlaxer-bom</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- 日本語住所テキスト処理: 文字種分類(BuiltinCharacterKind)・正規化(NFKC_CF/VariantNormalizer)・字推定(aza) -->
         <dependency>
