@@ -12,6 +12,11 @@ public final class AddressParser {
     public AddressParser fit(List<Example> data, int epochs) { tagger.fit(data, epochs); return this; }
     public AddressParser fit(List<Example> data) { return fit(data, 8); }
 
+    /** codepoint 列に対する信頼度つき推論（self-training 用）。 */
+    public PerceptronTagger.Confidence predictConfidence(List<String> chars) {
+        return tagger.predictWithConfidence(chars);
+    }
+
     /** 文字列 -> [(token,label)...] (Component 風)。 */
     public List<Component> parse(String text) {
         List<String> chars = CodePoints.of(text);
