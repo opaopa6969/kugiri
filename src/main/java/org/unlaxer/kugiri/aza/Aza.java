@@ -1,41 +1,37 @@
 package org.unlaxer.kugiri.aza;
 
 import org.unlaxer.kugiri.model.Component;
+import org.unlaxer.jaddress.aza.AzaInducer;
+import org.unlaxer.jaddress.aza.AzaParse;
 import java.util.*;
-import java.util.regex.*;
 
-/** 大字辞書＋末尾数字で残差スロットを切り出し、誘導字彙で字を推定する。教師ラベル不使用。 */
+/**
+ * 教師なし字推定の kugiri 側アダプタ。
+ *
+ * <p>字推定の本体は japanese-parser-common (>=0.2.0) の {@code org.unlaxer.jaddress.aza}
+ * （{@link AzaInducer} / {@code org.unlaxer.jaddress.aza.Aza}）へ移設済み。本クラスは
+ * その結果({@link AzaParse})を kugiri の {@link Component} 列へ橋渡しする薄い層。
+ */
 public final class Aza {
     private Aza() {}
 
-    private static final String NUM = "0-9０-９一二三四五六七八九十百千";
-    private static final Pattern TAIL_NUM = Pattern.compile(
-            "[" + NUM + "][" + NUM + "\\-ー‐−－のノ]*(?:番地|地割|番|号|丁目)?.*$");
-    private static final Pattern MARK = Pattern.compile("^(?:大字|字)?");
-
-    public static String longestPrefix(String text, Set<String> dict) {
-        String best = "";
-        for (String w : dict) if (text.startsWith(w) && w.length() > best.length()) best = w;
-        return best;
-    }
-
-    /** (大字, 残差=字候補, 末尾数字=地番)。頭の ZIP/都道府県/市区町村は除去済み想定。 */
+    /** jpc の {@code Aza.peel} へ委譲。(大字, 残差=字候補, 末尾数字=地番)。 */
     public static String[] peel(String text, Set<String> oazaDict) {
-        String oaza = longestPrefix(text, oazaDict);
-        String rest = text.substring(oaza.length());
-        Matcher m = TAIL_NUM.matcher(rest);
-        if (m.find()) return new String[]{oaza, rest.substring(0, m.start()), rest.substring(m.start())};
-        return new String[]{oaza, rest, ""};
+        return org.unlaxer.jaddress.aza.Aza.peel(text, oazaDict);
     }
 
+    /** jpc の最長一致へ委譲。 */
+    public static String longestPrefix(String text, Set<String> dict) {
+        return org.unlaxer.jaddress.aza.Aza.longestPrefix(text, dict);
+    }
+
+    /** text を字推定し、kugiri の Component 列(町または大字 / 字小字×n / 地番)に変換。 */
     public static List<Component> inferComponents(String text, Set<String> oazaDict, AzaInducer inducer) {
-        String[] p = peel(text, oazaDict);
+        AzaParse p = org.unlaxer.jaddress.aza.Aza.parse(text, oazaDict, inducer);
         List<Component> comps = new ArrayList<>();
-        if (!p[0].isEmpty()) comps.add(new Component("町または大字", p[0]));
-        String name = MARK.matcher(p[1]).replaceFirst("");
-        if (!name.isEmpty())
-            for (String piece : inducer.segment(name)) comps.add(new Component("字小字", piece));
-        if (!p[2].isEmpty()) comps.add(new Component("地番", p[2]));
+        if (!p.oaza().isEmpty()) comps.add(new Component("町または大字", p.oaza()));
+        for (String piece : p.aza()) comps.add(new Component("字小字", piece));
+        if (!p.banchi().isEmpty()) comps.add(new Component("地番", p.banchi()));
         return comps;
     }
 }

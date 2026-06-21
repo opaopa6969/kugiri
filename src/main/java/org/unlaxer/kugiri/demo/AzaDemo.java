@@ -1,6 +1,7 @@
 package org.unlaxer.kugiri.demo;
 
-import org.unlaxer.kugiri.aza.*;
+import org.unlaxer.kugiri.aza.Aza;
+import org.unlaxer.jaddress.aza.AzaInducer;
 import org.unlaxer.kugiri.model.Component;
 import java.util.*;
 
