@@ -1,8 +1,8 @@
 package org.unlaxer.kugiri.building.hierarchy;
 
-import org.unlaxer.kugiri.building.identity.BuildingIdentity;
 import org.unlaxer.kugiri.building.identity.BuildingIdentity.Decision;
 import org.unlaxer.kugiri.building.identity.BuildingLexicon;
+import org.unlaxer.kugiri.building.identity.IdentityResolver;
 
 import java.util.*;
 
@@ -17,7 +17,13 @@ public final class BuildingClusterer {
     /** @param canonical 代表名（最頻出、同数は長い方） */
     public record Cluster(String canonical, Set<String> members, boolean needsReview) {}
 
+    /** 既定（contrastive）で束ねる。 */
     public static List<Cluster> cluster(List<String> names, BuildingLexicon lex) {
+        return cluster(names, IdentityResolver.of("contrastive", lex));
+    }
+
+    /** 指定の同定アルゴリズム（動作オプション）で束ねる。 */
+    public static List<Cluster> cluster(List<String> names, IdentityResolver resolver) {
         // 出現頻度（代表名選出用）
         Map<String, Integer> freq = new LinkedHashMap<>();
         for (String n : names) if (!n.isEmpty()) freq.merge(n, 1, Integer::sum);
@@ -29,7 +35,7 @@ public final class BuildingClusterer {
             boolean reviewHit = false;
             for (int g = 0; g < groups.size(); g++) {
                 String rep = groups.get(g).get(0);
-                Decision d = BuildingIdentity.contrastive(n, rep, lex).decision();
+                Decision d = resolver.decide(n, rep).decision();
                 if (d == Decision.SAME) { joined = g; break; }
                 if (d == Decision.NEEDS_REVIEW) reviewHit = true;
             }
