@@ -1,0 +1,86 @@
+# dde-link dictionary — kugiri glossary
+# glossary ファイル名 → 拾うべき日本語/別表記の表層語マッピング
+# キーは <term>.md（基底名）。日本語ドキュメント(.ja.md)をリンクする際は
+# dde-link が対応する <term>.ja.md を解決する。
+# 長い語から先にマッチ（longest-match-first）させたいものは長い順に並べる。
+
+aza.md:
+  ja:
+    - "字小字"
+    - "小字"
+    - "字(小字)"
+    - "字（小字）"
+    - "字"
+    - "教師なし字推定"
+    - "字推定"
+    - "字彙"
+
+bioes.md:
+  ja:
+    - "BIOES"
+    - "BILOU"
+
+codepoint.md:
+  ja:
+    - "codepoint"
+    - "コードポイント"
+    - "コード・ポイント"
+
+hierarchy.md:
+  ja:
+    - "階層要素"
+    - "階層構造"
+
+perceptron-tagger.md:
+  ja:
+    - "平均化構造化パーセプトロン"
+    - "構造化パーセプトロン"
+    - "パーセプトロン"
+
+viterbi.md:
+  ja:
+    - "Viterbi"
+    - "ビタビ"
+    - "ビタビアルゴリズム"
+
+span-f1.md:
+  ja:
+    - "スパン F1"
+    - "スパンF1"
+    - "entity-level スパン F1"
+    - "エンティティレベル F1"
+
+abr.md:
+  ja:
+    - "アドレス・ベース・レジストリ"
+    - "アドレスベースレジストリ"
+    - "ABR"
+
+ken-all.md:
+  ja:
+    - "KEN_ALL.CSV"
+    - "KEN_ALL"
+    - "KEN ALL"
+
+branching-entropy.md:
+  ja:
+    - "分岐エントロピー"
+    - "境界エントロピー"
+
+pmi.md:
+  ja:
+    - "PMI"
+    - "自己相互情報量"
+    - "点ごとの相互情報量"
+
+weak-supervision.md:
+  ja:
+    - "弱教師"
+    - "弱教師あり学習"
+    - "弱ラベル"
+
+synthetic-data.md:
+  ja:
+    - "合成データ"
+    - "合成例"
+    - "データ拡張"
