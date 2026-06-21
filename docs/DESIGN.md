@@ -207,8 +207,10 @@ resources/sample_data/  KEN_ALL(15列) + ABR 4マスタ(町字/街区/住居/地
 | `synth.Synth` | コンポーネント→(text,tags)・拡張・合成器・`fromRecords` |
 | `feature.Features` | 窓±2 の文字/文字種/接尾辞KW/bigram 素性 |
 | `tagger.PerceptronTagger` | 系列ラベラ本体（CRF 差し替え可能なスロット） |
-| `tagger.AddressParser` | 学習/parse/評価（token+entity スパン）の窓口 |
+| `tagger.AddressParser` | 学習/parse/評価（token+entity スパン）/信頼度の窓口 |
+| `tagger.SelfTrainer` | self-training（max-marginal 信頼度ゲート＋ドリフト監視） |
 | `eval.SpanEval` | entity-level スパン P/R/F1・混同行列・hold-out 評価 |
+| `ingest.IngestCli` | 実 KEN_ALL(CP932)+ABR 取込 CLI・未マッチ率・学習/評価 |
 | `abr.KenAll` | KEN_ALL.CSV → (zip7,都道府県,市区町村,町域) |
 | `abr.Abr` | KEN_ALL→ABR 再解決 → Component 列（頭の階層分離） |
 | `aza.Aza` | 残差スロット切り出し + 字推定の kugiri アダプタ（本体は jpc） |
@@ -243,7 +245,8 @@ resources/sample_data/  KEN_ALL(15列) + ABR 4マスタ(町字/街区/住居/地
 
 ## 9. ロードマップ（進捗は GitHub issues T1–T7 で管理）
 
-1. **実 ABR/KEN_ALL 取込**: `kenallEncoding=CP932`、ABR 列名を実版で検証、まず住居表示の1県で回す。
+1. 🟡 **実 ABR/KEN_ALL 取込**: CLI `ingest.IngestCli` 実装済み（CP932 既定、未マッチ率ログ、任意で
+   hold-out 学習＋スパン評価）。サンプルで検証済み。**実データ1県(N>10万)での試走は運用者待ち**（生データ非コミット）。
 2. ✅ **実評価基盤**: hold-out（`AddressParser.holdout`）、entity-level スパン F1・混同行列（`eval.SpanEval` / `AddressParser.evaluateSpans`、`EvalDemo`）。実数値は実ラベル hold-out（T1 の実データ）で測る。
 3. ✅ **self-training ループ**: `tagger.SelfTrainer`。max-marginal の文平均マージンを信頼度ゲートにし、未ラベルから高信頼予測を擬似ラベル化して再学習を反復（ドリフト監視つき）。`SelfTrainDemo` で seed40件のみ 0.966→自己学習 0.972。
 4. ✅ **分岐エントロピー併用**: `AzaInducer.boundaryWeight`（jpc 0.3.0）が segment の内部境界に左右分岐エントロピーを加点。既定0.5で合成コーパスの R 0.708→1.000・P 1.000 維持。
