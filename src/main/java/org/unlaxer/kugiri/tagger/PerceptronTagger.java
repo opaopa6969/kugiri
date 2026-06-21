@@ -100,6 +100,64 @@ public final class PerceptronTagger implements ConfidenceTagger {
         }
     }
 
+    /** 部分ラベルの潜在(未知)位置を表すタグ。Example.tags() のこの値は学習時に latent 扱い。 */
+    public static final String LATENT = "?";
+
+    /**
+     * 部分ラベル学習（partial-CRF の実用的近似＝潜在変数つき構造化パーセプトロン）。
+     *
+     * <p>各事例の {@code tags()} のうち {@link #LATENT} の位置は未知（潜在）とみなす。
+     * 既知ラベルに整合する最良補完（制約付き Viterbi）を「正解」とし、無制約の予測を
+     * 「不正解」として更新する hard-EM 近似。頭=既知・尻尾=潜在の住所に向く。
+     */
+    public void fitPartial(List<Example> data, int epochs) {
+        List<List<List<String>>> feats = new ArrayList<>(data.size());
+        List<int[]> knowns = new ArrayList<>(data.size());
+        for (Example ex : data) {
+            feats.add(Features.sentFeatures(ex.chars()));
+            int[] known = new int[ex.tags().size()];
+            for (int i = 0; i < known.length; i++) {
+                String t = ex.tags().get(i);
+                known[i] = t.equals(LATENT) ? -1 : labelIndex.get(t);
+            }
+            knowns.add(known);
+        }
+        Map<String, double[]> emisAcc = new HashMap<>();
+        double[][] transAcc = new double[L][L];
+        double[] startAcc = new double[L];
+        Random rng = new Random(0);
+        List<Integer> order = new ArrayList<>();
+        for (int i = 0; i < data.size(); i++) order.add(i);
+
+        for (int e = 0; e < epochs; e++) {
+            Collections.shuffle(order, rng);
+            for (int idx : order) {
+                List<List<String>> F = feats.get(idx);
+                int[] known = knowns.get(idx);
+                int[] goldComplete = viterbi(F, known); // 既知に整合する最良補完
+                int[] pred = viterbi(F, null);           // 無制約予測
+                if (!Arrays.equals(pred, goldComplete)) update(F, goldComplete, pred);
+            }
+            for (Map.Entry<String, double[]> en : emis.entrySet()) {
+                double[] acc = emisAcc.computeIfAbsent(en.getKey(), k -> new double[L]);
+                for (int k = 0; k < L; k++) acc[k] += en.getValue()[k];
+            }
+            for (int a = 0; a < L; a++) {
+                startAcc[a] += start[a];
+                for (int b = 0; b < L; b++) transAcc[a][b] += trans[a][b];
+            }
+        }
+        for (Map.Entry<String, double[]> en : emisAcc.entrySet()) {
+            double[] avg = new double[L];
+            for (int k = 0; k < L; k++) avg[k] = en.getValue()[k] / epochs;
+            emis.put(en.getKey(), avg);
+        }
+        for (int a = 0; a < L; a++) {
+            start[a] = startAcc[a] / epochs;
+            for (int b = 0; b < L; b++) trans[a][b] = transAcc[a][b] / epochs;
+        }
+    }
+
     private void update(List<List<String>> F, int[] gold, int[] pred) {
         int n = gold.length;
         for (int i = 0; i < n; i++) {
@@ -126,7 +184,13 @@ public final class PerceptronTagger implements ConfidenceTagger {
         return s;
     }
 
-    private int[] viterbi(List<List<String>> F) {
+    private int[] viterbi(List<List<String>> F) { return viterbi(F, null); }
+
+    /**
+     * Viterbi 復号。known!=null のとき、known[i]>=0 の位置はそのラベルに固定する
+     * （部分ラベル学習＝潜在変数perceptron で「既知の頭」に整合した最良補完を得るのに使う）。
+     */
+    private int[] viterbi(List<List<String>> F, int[] known) {
         int n = F.size();
         double[][] score = new double[n][L];
         int[][] back = new int[n][L];
@@ -134,11 +198,12 @@ public final class PerceptronTagger implements ConfidenceTagger {
         double[] emit0 = new double[L];
         for (int k = 0; k < L; k++) emit0[k] = emission(F.get(0), k);
         for (int k = 0; k < L; k++)
-            score[0][k] = allowedStart[k] ? start[k] + emit0[k] : NEG;
+            score[0][k] = (allowedStart[k] && fixed(known, 0, k)) ? start[k] + emit0[k] : NEG;
         for (int i = 1; i < n; i++) {
             double[] emit = new double[L];
             for (int k = 0; k < L; k++) emit[k] = emission(F.get(i), k);
             for (int k = 0; k < L; k++) {
+                if (!fixed(known, i, k)) { score[i][k] = NEG; back[i][k] = 0; continue; }
                 double best = NEG; int arg = 0;
                 for (int j = 0; j < L; j++) {
                     if (!allowed[j][k] || score[i - 1][j] == NEG) continue;
@@ -158,6 +223,11 @@ public final class PerceptronTagger implements ConfidenceTagger {
         path[n - 1] = last;
         for (int i = n - 1; i > 0; i--) path[i - 1] = back[i][path[i]];
         return path;
+    }
+
+    /** known[i] が未指定(<0) か k に一致するとき true（その位置で k を許可）。 */
+    private static boolean fixed(int[] known, int i, int k) {
+        return known == null || known[i] < 0 || known[i] == k;
     }
 
     public List<String> predict(List<String> chars) {

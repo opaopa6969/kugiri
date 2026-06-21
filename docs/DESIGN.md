@@ -256,7 +256,11 @@ resources/sample_data/  KEN_ALL(15列) + ABR 4マスタ(町字/街区/住居/地
    差し込む（重い依存は差し替え層にのみ閉じ込め、本体は純 JDK + jpc を維持）。
 6. ✅ **建物・方書き**: `synth` に 階数・方書き(様方/気付)・建物辞書拡充を追加。`EvalDemo` の
    スパン評価に 棟/階数/部屋番号/方書き が乗る（棟↔方書きの実混同も観測）。
-7. **partial-CRF**: 周辺尤度で尻尾を潜在として学習。
+7. ✅ **partial-CRF（近似）**: `PerceptronTagger.fitPartial`＝潜在変数つき構造化パーセプトロン
+   （既知の頭に整合する制約付き Viterbi を正解に使う hard-EM 近似）。`PartialLabels` で頭=既知/
+   尻尾=潜在を生成。`PartialCrfDemo`：完全seed60＋頭ラベルのみの残りで、尻尾スパン F1 が
+   self-training を上回る（0.909 vs 0.891、naive=0.0）。完全な周辺(softmax)CRF は将来 T5 の
+   差し替え層で。
 
 ---
 

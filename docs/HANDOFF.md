@@ -21,8 +21,9 @@ ZIP＋住所文字列を `階層要素` ごとに切り出す ML トークナイ
   - `AzaDemo` … 教師ゼロの字推定。従来 F1 0.829、分岐エントロピー併用(T4・既定)で F1 1.000 / 完全一致 1.000（合成コーパス。実データは別途要評価）
 - 系列ラベラは平均化構造化パーセプトロン+Viterbi（BIOES 合法性マスク付き）。CRF 差し替え可能。
 
-未実装（＝次タスク）: 実データ取込、実評価基盤、self-training、BE 併用、CRF/BERT 差し替え、
-建物/方書き辞書、partial-CRF。
+進捗（issues T1–T7）: T2 実評価基盤 / T3 self-training / T4 分岐エントロピー併用 / T5 タガー差し替え層 /
+T6 建物・方書き / T7 partial-CRF(近似) は実装済み。T1 取込 CLI は実装済みだが**実1県(N>10万)の
+試走のみ運用者待ち**（生データ非コミット）。本番強化は T5 差し替え層に MALLET CRF / 文字BERT(ONNX)。
 
 ---
 
@@ -76,8 +77,9 @@ src/main/java/org/unlaxer/kugiri/
   aza/     Aza（字推定は jpc 0.3.0 org.unlaxer.jaddress.aza へ移設、本クラスはアダプタ）
   eval/    SpanEval（entity スパン F1・混同行列）
   ingest/  IngestCli（実 KEN_ALL/ABR 取込 CLI）
-  tagger/  PerceptronTagger AddressParser SelfTrainer
-  demo/    SynthDemo AbrDemo AzaDemo EvalDemo SelfTrainDemo Res
+  tagger/  SequenceTagger ConfidenceTagger PerceptronTagger GreedyTagger AddressParser
+           Confidence SelfTrainer PartialLabels
+  demo/    SynthDemo AbrDemo AzaDemo EvalDemo SelfTrainDemo TaggerSwapDemo PartialCrfDemo Res
 src/main/resources/sample_data/  KEN_ALL + ABR 4マスタ サンプル（実スキーマ準拠）
 docs/glossary/  DDE 用語集（住所ドメイン13語・日英）
 ```
@@ -149,6 +151,13 @@ docs/glossary/  DDE 用語集（住所ドメイン13語・日英）
 - 頭=既知、尻尾=潜在として周辺尤度で学習する CRF を実装（Java で marginal CRF、または
   Python `pytorch-partial-crf` で学習→ONNX で Java 推論）。
 - **受け入れ**: 教師の無い尻尾でスパン F1 が self-training と同等以上。
+  → ✅ 純JDKの近似で達成（`PerceptronTagger.fitPartial`＝潜在変数構造化パーセプトロン。
+  既知の頭に整合する制約付き Viterbi を「正解」とする hard-EM）。`PartialLabels`(頭既知/尻尾潜在
+  の生成＋尻尾F1)、`PartialCrfDemo`：完全seed60＋頭ラベルのみの残りで **尻尾スパンF1 0.909 ≥
+  self-training 0.891**（尻尾=O とみなす naive は 0.0 に崩壊）。`PartialCrfTest` で回帰。
+- 注意: 尻尾を**完全に**潜在(アンカー0)にすると hard-EM は全 O へ縮退する。少数の完全ラベルか
+  一部観測トークンが必要（現実の弱教師＝ABRで頭+一部尻尾は観測、と整合）。完全な周辺(softmax)
+  CRF が要るなら T5 の差し替え層に MALLET/CRFSuite/ONNX を入れる。
 
 ---
 
