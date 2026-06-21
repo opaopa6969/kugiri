@@ -246,7 +246,7 @@ resources/sample_data/  KEN_ALL(15列) + ABR 4マスタ(町字/街区/住居/地
 1. **実 ABR/KEN_ALL 取込**: `kenallEncoding=CP932`、ABR 列名を実版で検証、まず住居表示の1県で回す。
 2. ✅ **実評価基盤**: hold-out（`AddressParser.holdout`）、entity-level スパン F1・混同行列（`eval.SpanEval` / `AddressParser.evaluateSpans`、`EvalDemo`）。実数値は実ラベル hold-out（T1 の実データ）で測る。
 3. **self-training ループ**: 信頼度ゲートで擬似ラベルを反復追加。
-4. **分岐エントロピー併用**: `AzaInducer` に明示的な境界スコアを足し PMI と併用。
+4. ✅ **分岐エントロピー併用**: `AzaInducer.boundaryWeight`（jpc 0.3.0）が segment の内部境界に左右分岐エントロピーを加点。既定0.5で合成コーパスの R 0.708→1.000・P 1.000 維持。
 5. **CRF / BERT 差し替え**: MALLET CRF or 文字BERT+ONNX。
 6. **建物・方書き**: 辞書とパターンを `synth`/`augment` に追加しカバレッジ確保。
 7. **partial-CRF**: 周辺尤度で尻尾を潜在として学習。

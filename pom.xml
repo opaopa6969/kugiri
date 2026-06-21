@@ -28,7 +28,7 @@
         <dependency>
             <groupId>org.unlaxer</groupId>
             <artifactId>japanese-parser-common</artifactId>
-            <version>0.2.0</version>
+            <version>0.3.0</version>
         </dependency>
 
         <!-- テストのみ（本体は依存ゼロを維持） -->
