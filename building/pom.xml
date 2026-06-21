@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.unlaxer</groupId>
+    <artifactId>kugiri-building</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>kugiri-building</name>
+    <description>
+        kugiri の統計アルゴリズム（教師なし語彙誘導＝分岐エントロピー/PMI、系列ラベリング）で
+        建物名・建物階層・建物同定（表記ゆれ vs 別建物）を解く拡張モジュール。
+        kugiri 本体の純度（純JDK＋jpc）を保つため別モジュールに分離。
+        Phase1 で永続化層(Postgres+Flyway)・REST(Javalin) を本モジュールにのみ追加する。
+    </description>
+
+    <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.jupiter.version>5.10.2</junit.jupiter.version>
+        <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
+    </properties>
+
+    <!-- jpc / unlaxer-common は GitHub Packages(unlaxer-bom registry)。CI は PACKAGES_READ_TOKEN。 -->
+    <repositories>
+        <repository>
+            <id>github-unlaxer-bom</id>
+            <url>https://maven.pkg.github.com/opaopa6969/unlaxer-bom</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- 教師なし語彙誘導(AzaInducer: 分岐エントロピー/PMI/最尤分割) と正規化を再利用 -->
+        <dependency>
+            <groupId>org.unlaxer</groupId>
+            <artifactId>japanese-parser-common</artifactId>
+            <version>0.3.0</version>
+        </dependency>
+
+        <!-- Phase1 で追加予定（本モジュールにのみ閉じ込める）:
+             - org.unlaxer:kugiri（系列ラベラ SequenceTagger 等の再利用）
+             - org.postgresql:postgresql / org.flywaydb:flyway-core（永続化層）
+             - com.fasterxml.jackson:jackson-databind（スナップショット/JSON）
+             - io.javalin:javalin（REST, optional） -->
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -78,6 +78,10 @@ jobs:
           mvn -B -ntp -q exec:java -Dexec.mainClass=org.unlaxer.kugiri.demo.AbrDemo -Dstdout.encoding=UTF-8
           mvn -B -ntp -q exec:java -Dexec.mainClass=org.unlaxer.kugiri.demo.AzaDemo -Dstdout.encoding=UTF-8
 
+      - name: Build & test kugiri-building module
+        if: steps.tok.outputs.has == 'true'
+        run: mvn -B -ntp -f building/pom.xml test -DfailIfNoTests=false
+
       - name: Upload surefire reports
         if: always()
         uses: actions/upload-artifact@v4
