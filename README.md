@@ -42,7 +42,7 @@ mvn -q exec:java -Dexec.mainClass=org.unlaxer.kugiri.demo.PartialCrfDemo # parti
 
 ## ドキュメント
 
-- **学習コース（ML未経験者向け・会話形式の全25章）**: [`docs/study/`](docs/study/README.md)
+- **学習コース（ML未経験者向け・会話形式の全27章）**: [`docs/study/`](docs/study/README.md)
 - 用語集（DDE）: [`docs/glossary/`](docs/glossary/README.md)
 - 設計全体: [`docs/DESIGN.md`](docs/DESIGN.md)
 - 継続開発の引き継ぎ: [`docs/HANDOFF.md`](docs/HANDOFF.md)

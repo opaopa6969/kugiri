@@ -86,7 +86,11 @@
 - [第18章　合成データと「精度1.000を信じてはいけない」](18-synth-data.md)
 - [第19章　全部つなぐ：end-to-end と本番への差し替え](19-zenbu-tsunagu.md)
 
-### Part 6　付録（道具の説明書）
+### Part 6　発展編：半教師あり学習（本編クリア後の強化）
+- [第20章　半教師あり学習：少しの正解＋大量の未ラベル（self-training）](20-self-training.md)
+- [第21章　部分ラベル学習（partial-CRF 近似）：頭は既知・尻尾は潜在](21-partial-crf.md)
+
+### Part 7　付録（道具の説明書）
 - [付録A2　行列のきほん](A2-gyouretsu.md)
 - [付録A3　用語集](A3-yougo-shu.md)
 - [付録A4　数式記号の読み方](A4-kigou.md)
