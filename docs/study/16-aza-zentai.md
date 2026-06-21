@@ -7,6 +7,13 @@
 
 > **登場人物**：みどり先生、ツムギ、ゲンタ、アザミ、バーティ
 
+> 📦 **コードの置き場所メモ**：ここで解説する `AzaInducer`（fit / segment）と
+> 残差分解は、共有ライブラリ **japanese-parser-common 0.2.0 の
+> `org.unlaxer.jaddress.aza`** に移設されています（回帰テスト付き）。kugiri 側の
+> `aza/Aza.java` は、字推定の結果を kugiri の `Component` に詰め替える薄いアダプタ
+> （`inferComponents`）だけを残しています。**アルゴリズムの中身は不変**で、本章の
+> 説明はそのまま通用します。
+
 ---
 
 ## 旅は、いよいよクライマックス
