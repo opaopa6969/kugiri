@@ -74,8 +74,10 @@ public final class Synth {
     private static final String[] CITY = {"千代田区","横浜市","大阪市","盛岡市","川崎市","京都市"};
     private static final String[] WARD = {"中区","北区","西区","都筑区","左京区"};
     private static final String[] OAZA = {"丸の内","本町","栄","みなとみらい","高松","桜ヶ丘","上田"};
-    private static final String[] BLDG = {"%sビル","%sマンション","%sタワー","%sハイツ"};
-    private static final String[] BLDG_NAME = {"朝日","中央","グランド","パーク","みなと"};
+    private static final String[] BLDG = {"%sビル","%sマンション","%sタワー","%sハイツ","%s荘","%sコーポ","%sレジデンス","%sハウス"};
+    private static final String[] BLDG_NAME = {"朝日","中央","グランド","パーク","みなと","さくら","第一","ニュー"};
+    private static final String[] HOUSEHOLD_NAME = {"田中","佐藤","鈴木","高橋","山本"};
+    private static final String[] HOUSEHOLD_SUFFIX = {"様方","方"};
     private static final String KANJI_NUM = "一二三四五六七八九十";
 
     private static List<Component> genComponents(Random rng) {
@@ -98,8 +100,22 @@ public final class Synth {
         if (rng.nextDouble() < 0.5) {
             String bld = String.format(BLDG[rng.nextInt(BLDG.length)], BLDG_NAME[rng.nextInt(BLDG_NAME.length)]);
             c.add(new Component("棟", bld));
+            // 階数（B1階 などの地下も）
+            if (rng.nextDouble() < 0.4) {
+                String floor = rng.nextDouble() < 0.15
+                        ? "B" + (1 + rng.nextInt(3)) + "階"
+                        : (1 + rng.nextInt(20)) + "階";
+                c.add(new Component("階数", floor));
+            }
             if (rng.nextDouble() < 0.7)
                 c.add(new Component("部屋番号", String.format("%d%02d号室", 1 + rng.nextInt(15), 1 + rng.nextInt(20))));
+        }
+        // 方書き（様方／気付）。建物の有無に関わらず末尾に稀に付く
+        if (rng.nextDouble() < 0.12) {
+            String household = rng.nextDouble() < 0.7
+                    ? HOUSEHOLD_NAME[rng.nextInt(HOUSEHOLD_NAME.length)] + HOUSEHOLD_SUFFIX[rng.nextInt(HOUSEHOLD_SUFFIX.length)]
+                    : HOUSEHOLD_NAME[rng.nextInt(HOUSEHOLD_NAME.length)] + "気付";
+            c.add(new Component("方書き", household));
         }
         return c;
     }
