@@ -19,14 +19,24 @@
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.jupiter.version>5.10.2</junit.jupiter.version>
+        <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
     </properties>
 
     <dependencies>
-        <!-- 日本語住所テキスト処理: 文字種分類(BuiltinCharacterKind)・正規化(NFKC_CF/VariantNormalizer) -->
+        <!-- 日本語住所テキスト処理: 文字種分類(BuiltinCharacterKind)・正規化(NFKC_CF/VariantNormalizer)・字推定(aza) -->
         <dependency>
             <groupId>org.unlaxer</groupId>
             <artifactId>japanese-parser-common</artifactId>
             <version>0.2.0</version>
+        </dependency>
+
+        <!-- テストのみ（本体は依存ゼロを維持） -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -36,6 +46,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
             </plugin>
             <!-- デモ実行用(任意): mvn exec:java -Dexec.mainClass=...AzaDemo -->
             <plugin>

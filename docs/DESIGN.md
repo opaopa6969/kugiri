@@ -207,11 +207,13 @@ resources/sample_data/  KEN_ALL(15列) + ABR 4マスタ(町字/街区/住居/地
 | `synth.Synth` | コンポーネント→(text,tags)・拡張・合成器・`fromRecords` |
 | `feature.Features` | 窓±2 の文字/文字種/接尾辞KW/bigram 素性 |
 | `tagger.PerceptronTagger` | 系列ラベラ本体（CRF 差し替え可能なスロット） |
-| `tagger.AddressParser` | 学習/parse/評価の窓口 |
+| `tagger.AddressParser` | 学習/parse/評価（token+entity スパン）の窓口 |
+| `eval.SpanEval` | entity-level スパン P/R/F1・混同行列・hold-out 評価 |
 | `abr.KenAll` | KEN_ALL.CSV → (zip7,都道府県,市区町村,町域) |
 | `abr.Abr` | KEN_ALL→ABR 再解決 → Component 列（頭の階層分離） |
-| `aza.AzaInducer` | 教師なし字彙誘導 + PMI 剪定 + ユニグラム最尤分割 |
-| `aza.Aza` | 残差スロット切り出し + 字推定 |
+| `aza.Aza` | 残差スロット切り出し + 字推定の kugiri アダプタ（本体は jpc） |
+| `(jpc) jaddress.aza.AzaInducer` | 教師なし字彙誘導 + PMI 剪定 + ユニグラム最尤分割（japanese-parser-common 0.2.0 へ移設） |
+| `(jpc) jaddress.aza.Aza/AzaParse` | 残差分解（大字/字/地番）の本体 |
 
 ---
 
@@ -239,11 +241,11 @@ resources/sample_data/  KEN_ALL(15列) + ABR 4マスタ(町字/街区/住居/地
 
 ---
 
-## 9. ロードマップ
+## 9. ロードマップ（進捗は GitHub issues T1–T7 で管理）
 
 1. **実 ABR/KEN_ALL 取込**: `kenallEncoding=CP932`、ABR 列名を実版で検証、まず住居表示の1県で回す。
-2. **実評価基盤**: 手ラベル少数の hold-out、entity-level（スパン）F1、混同行列。
-3. **self-training ループ**: 周辺確率の信頼度ゲートで擬似ラベルを反復追加。
+2. ✅ **実評価基盤**: hold-out（`AddressParser.holdout`）、entity-level スパン F1・混同行列（`eval.SpanEval` / `AddressParser.evaluateSpans`、`EvalDemo`）。実数値は実ラベル hold-out（T1 の実データ）で測る。
+3. **self-training ループ**: 信頼度ゲートで擬似ラベルを反復追加。
 4. **分岐エントロピー併用**: `AzaInducer` に明示的な境界スコアを足し PMI と併用。
 5. **CRF / BERT 差し替え**: MALLET CRF or 文字BERT+ONNX。
 6. **建物・方書き**: 辞書とパターンを `synth`/`augment` に追加しカバレッジ確保。
