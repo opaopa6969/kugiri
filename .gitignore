@@ -1,0 +1,11 @@
+target/
+*.class
+.idea/
+*.iml
+.vscode/
+.DS_Store
+# 実 ABR/KEN_ALL の生データは置かない（サンプルのみ）
+/data/
+*.zip
+KEN_ALL*.CSV
+mt_*.csv
