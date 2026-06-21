@@ -250,7 +250,10 @@ resources/sample_data/  KEN_ALL(15列) + ABR 4マスタ(町字/街区/住居/地
 2. ✅ **実評価基盤**: hold-out（`AddressParser.holdout`）、entity-level スパン F1・混同行列（`eval.SpanEval` / `AddressParser.evaluateSpans`、`EvalDemo`）。実数値は実ラベル hold-out（T1 の実データ）で測る。
 3. ✅ **self-training ループ**: `tagger.SelfTrainer`。max-marginal の文平均マージンを信頼度ゲートにし、未ラベルから高信頼予測を擬似ラベル化して再学習を反復（ドリフト監視つき）。`SelfTrainDemo` で seed40件のみ 0.966→自己学習 0.972。
 4. ✅ **分岐エントロピー併用**: `AzaInducer.boundaryWeight`（jpc 0.3.0）が segment の内部境界に左右分岐エントロピーを加点。既定0.5で合成コーパスの R 0.708→1.000・P 1.000 維持。
-5. **CRF / BERT 差し替え**: MALLET CRF or 文字BERT+ONNX。
+5. ✅ **CRF / BERT 差し替え（継ぎ目）**: `tagger.SequenceTagger` interface を導入し `AddressParser`
+   を注入式に。第2実装 `tagger.GreedyTagger`（純JDK）で差し替え可能を実証（`TaggerSwapDemo`：同一
+   API で Perceptron/Greedy が動く）。MALLET CRF / 文字BERT(ONNX) はこの interface の別実装として
+   差し込む（重い依存は差し替え層にのみ閉じ込め、本体は純 JDK + jpc を維持）。
 6. ✅ **建物・方書き**: `synth` に 階数・方書き(様方/気付)・建物辞書拡充を追加。`EvalDemo` の
    スパン評価に 棟/階数/部屋番号/方書き が乗る（棟↔方書きの実混同も観測）。
 7. **partial-CRF**: 周辺尤度で尻尾を潜在として学習。

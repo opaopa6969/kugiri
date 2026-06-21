@@ -127,6 +127,17 @@ docs/glossary/  DDE 用語集（住所ドメイン13語・日英）
 - `PerceptronTagger` と同じ素性で MALLET CRF を実装、または 文字BERT を ONNX 化して
   onnxruntime-java 推論。前処理は `CodePoints.of` のみ。
 - **受け入れ**: 既存 `AddressParser` API を保ったまま実装が差し替わり、デモが通る。
+  → ✅ 継ぎ目を実装（`tagger.SequenceTagger` interface＋`AddressParser` 注入式、信頼度は
+  能力 interface `ConfidenceTagger`）。第2実装 `tagger.GreedyTagger`(純JDK)で実証
+  （`TaggerSwapDemo`：Perceptron F1=0.9995 / Greedy F1=0.9936 が同一 API で動く）。
+- **実 ML 実装の差し込み手順**（重い依存は差し替え層に閉じ込める）:
+  1. 新クラスを `tagger` に作り `SequenceTagger`（信頼度を出すなら `ConfidenceTagger`）を実装。
+  2. `fit` は `Example`(chars,tags) を学習、`predict` は `CodePoints.of` 済み列を受け BIOES を返す。
+     素性は `feature.Features.sentFeatures` をそのまま使える（CRF）。BERT は ONNX を
+     onnxruntime-java で推論し codepoint→ラベルを返す。
+  3. 依存(mallet / com.microsoft.onnxruntime)は **その実装のモジュール/プロファイルにのみ**追加。
+     本体・既定ビルドは純 JDK + jpc を維持。
+  4. 利用側は `new AddressParser(new YourTagger())`。窓口 API は不変。
 
 ### T6. 建物・方書き辞書
 - KEN_ALL/ABR に無い `棟/階数/部屋番号/方書き` を辞書＋パターンで合成し、`Synth.augment` に追加。

@@ -5,17 +5,37 @@ import org.unlaxer.kugiri.model.*;
 import org.unlaxer.kugiri.eval.SpanEval;
 import java.util.*;
 
-/** 住所 tokenizer の窓口: 学習 / parse / 簡易評価。 */
+/**
+ * 住所 tokenizer の窓口: 学習 / parse / 評価。
+ *
+ * <p>系列ラベラは {@link SequenceTagger} として差し替え可能（既定は純 JDK の
+ * {@link PerceptronTagger}）。MALLET CRF / 文字BERT+ONNX 等の実装を注入しても
+ * 本クラスの API は不変（CLAUDE.md の差し替え層方針）。
+ */
 public final class AddressParser {
-    private final PerceptronTagger tagger = new PerceptronTagger();
+    private final SequenceTagger tagger;
+
+    /** 既定: 平均化構造化パーセプトロン。 */
+    public AddressParser() { this(new PerceptronTagger()); }
+
+    /** 任意のタガー実装を注入。 */
+    public AddressParser(SequenceTagger tagger) { this.tagger = tagger; }
 
     public AddressParser fit(List<Example> data, int epochs) { tagger.fit(data, epochs); return this; }
     public AddressParser fit(List<Example> data) { return fit(data, 8); }
 
-    /** codepoint 列に対する信頼度つき推論（self-training 用）。 */
-    public PerceptronTagger.Confidence predictConfidence(List<String> chars) {
-        return tagger.predictWithConfidence(chars);
+    /**
+     * codepoint 列に対する信頼度つき推論（self-training 用）。
+     * タガーが {@link ConfidenceTagger} を実装していない場合は非対応。
+     */
+    public Confidence predictConfidence(List<String> chars) {
+        if (tagger instanceof ConfidenceTagger ct) return ct.predictWithConfidence(chars);
+        throw new UnsupportedOperationException(
+                tagger.getClass().getSimpleName() + " は信頼度（ConfidenceTagger）に未対応");
     }
+
+    /** このタガーが信頼度を出せるか（self-training 可否）。 */
+    public boolean supportsConfidence() { return tagger instanceof ConfidenceTagger; }
 
     /** 文字列 -> [(token,label)...] (Component 風)。 */
     public List<Component> parse(String text) {

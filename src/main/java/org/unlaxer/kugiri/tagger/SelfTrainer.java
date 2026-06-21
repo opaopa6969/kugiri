@@ -9,7 +9,7 @@ import java.util.*;
  * 高信頼の予測だけを擬似ラベルとして取り込み再学習を反復する。
  *
  * <p>パーセプトロンは確率を出さないので、信頼度は max-marginal の文平均マージン
- * （{@link PerceptronTagger.Confidence#meanMargin}）で代用する（HANDOFF T3 の (b) 案）。
+ * （{@link Confidence#meanMargin}）で代用する（HANDOFF T3 の (b) 案）。
  * 反復ごとに hold-out（test）のスパン F1 を測り、悪化したら採用せず止める（ドリフト監視）。
  */
 public final class SelfTrainer {
@@ -44,7 +44,7 @@ public final class SelfTrainer {
             List<Example> accepted = new ArrayList<>();
             List<List<String>> remaining = new ArrayList<>();
             for (List<String> chars : pool) {
-                PerceptronTagger.Confidence c = current.predictConfidence(chars);
+                Confidence c = current.predictConfidence(chars);
                 if (c.meanMargin() >= marginThreshold) accepted.add(new Example(chars, c.tags()));
                 else remaining.add(chars);
             }

@@ -12,7 +12,7 @@ import java.util.*;
  * スロットに差し替える前提。ここは「動く参照実装」。BIOES の遷移合法性を Viterbi で
  * マスクして不正系列(I-が単独で始まる等)を排除する。
  */
-public final class PerceptronTagger {
+public final class PerceptronTagger implements ConfidenceTagger {
     private final List<String> labels = Bioes.tags();
     private final Map<String, Integer> labelIndex = new HashMap<>();
     private final int L = labels.size();
@@ -168,13 +168,11 @@ public final class PerceptronTagger {
         return out;
     }
 
-    /** Viterbi タグ列＋max-marginal による位置別マージンと文平均マージン。 */
-    public record Confidence(List<String> tags, double[] tokenMargin, double meanMargin) {}
-
     /**
      * 信頼度つき推論。パーセプトロンは確率を出さないので、max-sum の forward/backward で
      * 各位置の「最良ラベルと次点の差（マージン）」を信頼度の代用にする（self-training 用）。
      */
+    @Override
     public Confidence predictWithConfidence(List<String> chars) {
         List<List<String>> F = Features.sentFeatures(chars);
         int n = F.size();
