@@ -147,5 +147,10 @@ decide(a, b, lexicon):           # lexicon は建物名コーパスから AzaInd
 
 - **Phase0（本コミット）**：本設計＋同定プロトタイプ（`identity` パッケージ）で
   variant-vs-distinct を実証（編集距離ベースラインと対決）。
-- **Phase1**：建物名抽出（系列ラベラ）＋行→木＋差し替え層＋Postgres 永続化＋Study第二部本文。
-- **Phase2**：gold pairs での対決評価・BH との相互運用（提案 issue）・REST/UI。
+- **Phase1（進行中）**：
+  - ✅ 1-1 建物名抽出 `parser`（rule＋kugiri語彙版。裸末尾数字の棟判定）。
+  - ✅ 1-2/3 行→木 `hierarchy`（同定で建物を束ね、住所→建物→棟→階→部屋・可変深さ）。
+  - ✅ 差し替え層 `IdentityResolver.of` / `BuildingParser.of`（動作オプション）。
+  - ✅ 1-4 永続化 `store`：`BuildingStore` IF＋`InMemoryStore`(DBレス・テスト)＋`PostgresStore`(JDBC＋Flyway, db/migration/V1__init.sql)＋`PersistencePipeline`。
+  - ⏳ Study第二部本文（0〜2章済み、3〜9章は実装と並走）／系列ラベラ版パーサ／kugiri本体依存。
+- **Phase2**：gold pairs での対決評価・証拠(部屋集合)で型F/C確定・BH との相互運用（提案 issue）・REST/UI。

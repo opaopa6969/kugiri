@@ -42,11 +42,24 @@
             <version>0.3.0</version>
         </dependency>
 
-        <!-- Phase1 で追加予定（本モジュールにのみ閉じ込める）:
-             - org.unlaxer:kugiri（系列ラベラ SequenceTagger 等の再利用）
-             - org.postgresql:postgresql / org.flywaydb:flyway-core（永続化層）
-             - com.fasterxml.jackson:jackson-databind（スナップショット/JSON）
-             - io.javalin:javalin（REST, optional） -->
+        <!-- 永続化（本番）：Postgres + Flyway。InMemoryStore は依存ゼロでテスト/デモに使う。 -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>10.22.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+            <version>10.22.0</version>
+        </dependency>
+
+        <!-- Phase1 後で追加予定: org.unlaxer:kugiri（系列ラベラ再利用）, io.javalin（REST, optional） -->
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
