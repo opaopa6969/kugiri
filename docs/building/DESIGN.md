@@ -148,7 +148,8 @@ decide(a, b, lexicon):           # lexicon は建物名コーパスから AzaInd
 - **Phase0（本コミット）**：本設計＋同定プロトタイプ（`identity` パッケージ）で
   variant-vs-distinct を実証（編集距離ベースラインと対決）。
 - **Phase1（進行中）**：
-  - ✅ 1-1 建物名抽出 `parser`（rule＋kugiri語彙版。裸末尾数字の棟判定）。
+  - ✅ 1-1 建物名抽出 `parser`（rule＋kugiri語彙版＋**系列ラベラ版** `perceptron`。裸末尾数字の棟判定）。
+    `BuildingParser.of("rule"|"lexicon"|"perceptron")`。perceptron は合成学習(BuildingTailSynth)で辞書レスに建物名/棟/階/部屋を BIOES ラベリング。
   - ✅ 1-2/3 行→木 `hierarchy`（同定で建物を束ね、住所→建物→棟→階→部屋・可変深さ）。
   - ✅ 差し替え層 `IdentityResolver.of` / `BuildingParser.of`（動作オプション）。
   - ✅ 1-4 永続化 `store`：`BuildingStore` IF＋`InMemoryStore`(DBレス・テスト)＋`PostgresStore`(JDBC＋Flyway, db/migration/V1__init.sql)＋`PersistencePipeline`。

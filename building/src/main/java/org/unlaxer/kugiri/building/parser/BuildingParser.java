@@ -21,7 +21,9 @@ public interface BuildingParser {
         return switch (name) {
             case "rule" -> new RuleBuildingParser();
             case "lexicon" -> new LexiconBuildingParser(lexicon);
-            default -> throw new IllegalArgumentException("Unknown building parser: " + name + " (rule | lexicon)");
+            case "perceptron" -> new PerceptronBuildingParser();
+            default -> throw new IllegalArgumentException(
+                    "Unknown building parser: " + name + " (rule | lexicon | perceptron)");
         };
     }
 }

@@ -16,6 +16,7 @@ public final class BuildingParseDemo {
         BuildingLexicon lex = BuildingLexicon.learn(SampleCorpus.names());
         BuildingParser rule = BuildingParser.of("rule", lex);
         BuildingParser lexp = BuildingParser.of("lexicon", lex);
+        BuildingParser perc = BuildingParser.of("perceptron", lex);
 
         List<String> tails = List.of(
                 "川上ハイツ-101",
@@ -37,8 +38,9 @@ public final class BuildingParseDemo {
             ParsedBuilding l = lexp.parse(t);
             String diff = r.equals(l) ? "" : "   ★差分";
             System.out.printf("入力: %s%n", t);
-            System.out.printf("   rule    : %s%n", r);
-            System.out.printf("   lexicon : %s%s%n", l, diff);
+            System.out.printf("   rule       : %s%n", r);
+            System.out.printf("   lexicon    : %s%s%n", l, diff);
+            System.out.printf("   perceptron : %s%n", perc.parse(t));
         }
         System.out.println("\n※ 裸の末尾数字の棟/名前判定は、BHが cross-row 共起で解く所を");
         System.out.println("   kugiri は誘導語彙の生産性で1件単位で判定（辞書レス）。");
