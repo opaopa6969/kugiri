@@ -1,7 +1,10 @@
 package org.unlaxer.kugiri.building.hierarchy;
 
+import org.unlaxer.kugiri.building.hierarchy.EvidenceClusterer.Cluster;
+import org.unlaxer.kugiri.building.hierarchy.EvidenceClusterer.NamedRooms;
 import org.unlaxer.kugiri.building.hierarchy.HierarchyNode.Level;
 import org.unlaxer.kugiri.building.identity.BuildingLexicon;
+import org.unlaxer.kugiri.building.identity.IdentityResolver;
 import org.unlaxer.kugiri.building.parser.ParsedBuilding;
 
 import java.util.*;
@@ -28,12 +31,17 @@ public final class HierarchyAssembler {
         for (var e : byAddr.entrySet()) {
             HierarchyNode addr = new HierarchyNode(Level.ADDRESS, e.getKey());
 
-            List<String> names = new ArrayList<>();
-            for (Row r : e.getValue()) if (!r.building().name().isEmpty()) names.add(r.building().name());
-            List<BuildingClusterer.Cluster> clusters = BuildingClusterer.cluster(names, lex);
+            // 建物名と、その名前で観測された部屋番号集合（証拠）
+            List<NamedRooms> items = new ArrayList<>();
+            for (Row r : e.getValue()) {
+                if (r.building().name().isEmpty()) continue;
+                Set<String> rooms = r.building().room().isEmpty() ? Set.of() : Set.of(r.building().room());
+                items.add(new NamedRooms(r.building().name(), rooms));
+            }
+            List<Cluster> clusters = EvidenceClusterer.cluster(items, IdentityResolver.of("contrastive", lex));
 
             // 名前 → (代表名, レビュー印)
-            Map<String, BuildingClusterer.Cluster> byName = new HashMap<>();
+            Map<String, Cluster> byName = new HashMap<>();
             for (var c : clusters) for (String m : c.members()) byName.put(m, c);
 
             for (Row r : e.getValue()) {
