@@ -28,6 +28,8 @@ abr/(Csv,KenAll,Abr) aza/(AzaInducer,Aza) demo/(Synth,Abr,Aza,Res)
 ## 設計原則（厳守）
 - **依存は最小**。本体は純 JDK。ML ライブラリは tagger の差し替え層にのみ閉じ込める。
 - **codepoint 単位**（`char` 不可、`String.codePoints()` / `CodePoints`）。外字/サロゲート対応。
+- **日本語テキストの走査に regex（`String.matches`/`replaceAll`/`split` 等）を使わない**。codepoint 走査で書く。
+  例外は ASCII 固定パターンや NFKC 正規化など限定用途のみ。サロゲート/外字を壊さないため。
 - ラベルは `Labels` の表層文字列。`Hierarchy` enum と 1:1 を崩さない。
 - 公開窓口は `AddressParser` / `Abr` / `AzaInducer` / `Aza`。
 - 日本語コメント可。住所用語は原表記（群=郡 等、原 enum 準拠）。
