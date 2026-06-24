@@ -154,4 +154,10 @@ decide(a, b, lexicon):           # lexicon は建物名コーパスから AzaInd
   - ✅ 差し替え層 `IdentityResolver.of` / `BuildingParser.of`（動作オプション）。
   - ✅ 1-4 永続化 `store`：`BuildingStore` IF＋`InMemoryStore`(DBレス・テスト)＋`PostgresStore`(JDBC＋Flyway, db/migration/V1__init.sql)＋`PersistencePipeline`。
   - ⏳ Study第二部本文（0〜2章済み、3〜9章は実装と並走）／系列ラベラ版パーサ／kugiri本体依存。
-- **Phase2**：gold pairs での対決評価・証拠(部屋集合)で型F/C確定・BH との相互運用（提案 issue）・REST/UI。
+- **Phase2（進行中）**：
+  - ✅ 証拠(部屋集合)で型F/C確定（`identity/EvidenceResolver`＋`hierarchy/EvidenceClusterer`、assembler に統合）。
+  - ✅ gold 対決ハーネス（`eval/IdentityEvaluator`＋サンプルgold。contrastive 1.000 vs 編集距離 0.62/0.38）。
+  - ✅ 投入・検証 CLI（`ingest/BuildingIngestCli`、CP932対応・レポート）。
+  - ✅ REST + 簡易UI（`api/BuildingFacade`＋`api/BuildingApiServer`、Javalin）。
+  - ✅ BH 連携：提案 issue #36 ＋ PR #37（`RoomEvidenceResolver` の安全な部品）。productivity配線は gold-eval 経由を推奨。
+  - ⏳ 実データでの gold 評価（実データ非コミット）、productivity の corpus 配線、BH への本統合。
