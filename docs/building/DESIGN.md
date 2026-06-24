@@ -159,5 +159,6 @@ decide(a, b, lexicon):           # lexicon は建物名コーパスから AzaInd
   - ✅ gold 対決ハーネス（`eval/IdentityEvaluator`＋サンプルgold。contrastive 1.000 vs 編集距離 0.62/0.38）。
   - ✅ 投入・検証 CLI（`ingest/BuildingIngestCli`、CP932対応・レポート）。
   - ✅ REST + 簡易UI（`api/BuildingFacade`＋`api/BuildingApiServer`、Javalin）。
-  - ✅ BH 連携：提案 issue #36 ＋ PR #37（`RoomEvidenceResolver` の安全な部品）。productivity配線は gold-eval 経由を推奨。
+  - ✅ BH 連携：提案 issue #36 ＋ PR #37（`RoomEvidenceResolver`）を **マージ済み**（BH docs/clustering-design §7）。
+    残る productivity 配線・包含 must-merge は BH の gold-eval（ClusteringTuner/GoldStandardEvaluator）経由で追従。
   - ⏳ 実データでの gold 評価（実データ非コミット）、productivity の corpus 配線、BH への本統合。
