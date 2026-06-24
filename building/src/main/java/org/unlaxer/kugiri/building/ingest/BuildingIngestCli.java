@@ -84,7 +84,7 @@ public final class BuildingIngestCli {
         return new Report(rows.size(), addresses, buildings, rooms, review, empty);
     }
 
-    static List<Row> readRows(Reader reader, int addrCol, int tailCol, BuildingParser parser) throws IOException {
+    public static List<Row> readRows(Reader reader, int addrCol, int tailCol, BuildingParser parser) throws IOException {
         List<Row> rows = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(reader)) {
             String line; boolean header = true;
